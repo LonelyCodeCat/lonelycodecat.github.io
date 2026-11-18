@@ -79,6 +79,7 @@ function render() {
     csv.push([chicagoDate.format(end), timeZone, localDate.format(start) + " " + times.format(start), localDate.format(end) + " " + times.format(end), start.toISOString(), end.toISOString()]);
   }
   const close = firstOpen + 23 * hourMs;
+  drawWeek(timeZone, firstOpen);
   pauseHour = Number(times.format(close).slice(0, 2));
   document.querySelector("#pause").textContent = city + " maintenance · " + times.format(close) + "–" + times.format(close + hourMs);
   document.querySelector("#table-caption").textContent = season.selectedOptions[0].text + " · " + city + " time";
@@ -87,6 +88,43 @@ function render() {
   download.href = csvUrl;
   download.download = "es-sessions-" + season.value + "-" + city.toLowerCase() + ".csv";
   drawClock();
+}
+
+function drawWeek(timeZone, firstOpen) {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const cells = days.map(() => Array(24).fill(false));
+  const fmt = new Intl.DateTimeFormat("en-GB", {timeZone, weekday:"short", hour:"2-digit", hourCycle:"h23"});
+  for (let session = 0; session < 5; session++) {
+    for (let hour = 0; hour < 23; hour++) {
+      const instant = firstOpen + (session * 24 + hour) * hourMs;
+      const parts = Object.fromEntries(fmt.formatToParts(instant).map(p => [p.type, p.value]));
+      cells[days.indexOf(parts.weekday)][Number(parts.hour)] = true;
+    }
+  }
+  const map = document.querySelector("#heatmap");
+  map.replaceChildren();
+  const axis = document.createElement("div");
+  axis.className = "heat-axis";
+  for (const label of ["00", "06", "12", "18"]) {
+    const tick = document.createElement("span");
+    tick.textContent = label;
+    axis.append(tick);
+  }
+  map.append(axis);
+  cells.forEach((hours, day) => {
+    const row = document.createElement("div");
+    row.className = "heat-row";
+    const label = document.createElement("span");
+    label.textContent = days[day];
+    row.append(label);
+    hours.forEach((open, hour) => {
+      const tile = document.createElement("i");
+      if (open) tile.className = "open";
+      tile.title = days[day] + " " + String(hour).padStart(2, "0") + ":00 · " + (open ? "Scheduled open" : "Closed");
+      row.append(tile);
+    });
+    map.append(row);
+  });
 }
 zone.addEventListener("change", render);
 season.addEventListener("change", render);

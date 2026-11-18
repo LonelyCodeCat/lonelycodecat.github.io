@@ -3,47 +3,67 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Jun Li’s independent data portfolio. Explore the 23-hour E-mini S&P 500 futures session in Chicago and Beijing time.">
-  <title>Jun Li — The 23-hour trading day</title>
+  <meta name="description" content="Jun Li’s interactive E-mini S&P 500 research portfolio. Explore intraday returns, weekly trader positioning and the trading clock.">
+  <title>Jun Li — Inside the E-mini</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="positioning-data.js" defer></script>
   <script src="portfolio.js" defer></script>
+  <script src="research.js" defer></script>
 </head>
 <body id="top">
-<header class="wrap mast">
-  <a class="brand" href="#top">Jun Li<span>.</span></a>
-  <nav aria-label="Main navigation"><a href="#study">Study</a><a href="#practice">Practice</a><a href="mailto:857487@gmail.com">Contact</a></nav>
-</header>
+<header><div class="wrap mast"><a href="#top" class="brand"><b aria-hidden="true">∿</b> Jun Li</a>
+<nav aria-label="Main navigation"><a href="#positions">Positioning</a><a href="#week">Sessions</a><a href="#practice">Contact</a></nav></div></header>
 <main>
-  <section class="wrap hero" id="study">
-    <div class="intro">
-      <p class="eyebrow"><span class="rule"></span>Independent study · Market hours</p>
-      <h1>The <em>23-hour</em><br>trading day.</h1>
-      <p class="deck">When does the S&amp;P 500 futures market sleep?</p>
-      <p class="copy">I’m Jun Li, an independent data analyst and developer. Here I map the trading week for CME’s E-mini S&amp;P 500 futures (ES), starting with the one hour missing from a regular session.</p>
-      <a class="textlink" href="#week">Explore the trading week</a>
-    </div>
-    <figure aria-labelledby="clock-title" class="instrument">
-      <figcaption><span id="clock-title">Session clock</span><span class="symbol">ES / CME Globex</span></figcaption>
-      <div class="controls">
-        <label>Time zone<select id="zone"><option value="America/Chicago">Chicago</option><option value="Asia/Shanghai">Beijing</option></select></label>
-        <label>Reference week<select id="season"><option value="november">November 2026</option><option value="july">July 2026</option></select></label>
-      </div>
-      <div class="dial"><canvas id="clock" width="620" height="480" aria-hidden="true"></canvas><div class="center"><b>23<span>h</span></b><span>trading</span></div></div>
-      <div class="legend"><span><i></i> Trading</span><span><i></i> Maintenance</span></div>
-      <p class="pause" id="pause" aria-live="polite">Chicago maintenance · 16:00–17:00</p>
-    </figure>
-  </section>
-  <section class="wrap week" id="week">
-    <div class="section-intro"><div><p class="eyebrow"><span class="rule"></span>Session calendar</p><h2>Five trade dates.</h2></div>
-    <p>CME assigns the evening open to the following trade date. The table uses the clock’s selected time zone, so the local calendar day can change.</p></div>
-    <div class="table-heading"><span id="table-caption">Regular week</span><a href="#" download="es-sessions.csv" id="download">Download CSV</a></div>
-    <table aria-labelledby="table-caption"><thead><tr><th scope="col">Trade date</th><th scope="col">Session opens</th><th scope="col">Session closes</th></tr></thead><tbody id="sessions"></tbody></table>
-    <div class="method"><h3>How to read the schedule</h3><div><p>A regular session runs from 17:00 to 16:00 the next day in Chicago. Monday through Thursday the market pauses for one hour before reopening. Friday’s close starts the weekend break, which ends on Sunday at 17:00 Chicago time.</p>
-    <p>These two sample weeks show scheduled hours in U.S. daylight and standard time. Holiday schedules, expiring contracts and unscheduled halts can differ.</p>
-    <div class="sources"><a href="https://www.cmegroup.com/markets/equities/sp-500-and-nasdaq-100-futures.html">CME trading hours</a><a href="https://www.cmegroup.com/markets/equities/sp/e-mini-sandp500.contractSpecs.html">ES specifications</a><a href="https://www.cmegroup.com/trading-hours.html">Holiday calendar</a></div></div></div>
-  </section>
-  <section id="practice"><div class="wrap practice"><div><p class="eyebrow"><span class="rule"></span>Independent practice</p><h2>Data work<br>with Jun Li.</h2></div>
-    <div><p>I collect and clean data from websites, APIs, and files. I develop algorithms to process it and deliver structured datasets, charts, and reports. Most of my work comes through personal referrals.</p>
-    <a href="mailto:857487@gmail.com">857487@gmail.com</a></div></div></section>
+<section class="hero"><div class="wrap hero-grid">
+  <div class="intro"><p class="label sky">Independent research · CME / ES</p>
+    <h1>Inside the<br><em>E-mini.</em></h1>
+    <p class="deck">What happens inside a 23-hour trading day?</p>
+    <p class="bio">I’m Jun Li, an independent data analyst. This study follows the S&amp;P 500 futures market from the overnight session to the weekly positioning report.</p>
+    <a class="primary" href="#positions">Explore positioning</a>
+  </div>
+  <figure class="signal" aria-labelledby="hour-title">
+    <figcaption><p class="label sky">Intraday profile</p><h2 id="hour-title">The shape of an hour</h2></figcaption>
+    <div class="toggle" role="group" aria-label="Hourly measure"><button id="mean" aria-pressed="true">Mean return</button><button id="spread" aria-pressed="false">Standard deviation</button></div>
+    <div class="reading"><strong id="hour-value">+1.51</strong><span>bp</span><span id="hour-slot">02:00–03:00 ET</span></div>
+    <canvas id="hour-chart" class="plot" aria-label="Hourly ES return statistics, from 18:00 to 18:00 Eastern. Use the hour control below for exact values." role="img"></canvas>
+    <label class="scrubber"><span>Inspect hour</span><input id="hour" type="range" min="0" max="23" value="8"></label>
+    <p class="caption">Jan 1998–Dec 2020 · New York time · <a href="#method-hour">Source &amp; method</a></p>
+  </figure>
+</div></section>
+<section class="wrap block" id="positions"><div class="section-intro"><div><p class="label">CFTC / Weekly positioning</p><h2>Who holds the contracts?</h2></div>
+  <p>Choose a report week to compare total open interest with the net position of each trader group. Both charts refer to the same report.</p></div>
+  <div class="week-switch"><label for="report">Report date</label><select id="report"></select><a id="position-csv" download="es-cftc-weekly.csv">Download weekly CSV</a></div>
+  <div class="pair">
+    <figure class="paper"><figcaption><p class="label">Outstanding contracts</p><h3>Open interest</h3></figcaption>
+      <div class="oi-reading"><strong id="interest"></strong><span id="oi-change"></span></div>
+      <canvas id="oi-chart" class="plot" role="img" aria-label="Weekly open interest. Select a date above or tap the line to inspect a report."></canvas>
+      <p class="caption">Nov 2025–Nov 2026 · All ES delivery months</p></figure>
+    <figure class="paper"><figcaption><p class="label">Long minus short</p><h3>Net positions</h3></figcaption>
+      <div class="net-key"><span>Net short</span><span>Net long</span></div>
+      <div id="groups"></div>
+      <p class="caption">Contracts · One shared scale across report weeks</p></figure>
+  </div>
+  <p class="note">Open interest counts each outstanding contract once. A positive net position means a group holds more longs than shorts. The five groups balance to zero. This snapshot uses CFTC market code 13874A and ends on 10 November 2026. <a href="https://publicreporting.cftc.gov/Commitments-of-Traders/TFF-Futures-Only/gpe5-46if">CFTC futures-only reports</a> · <a href="https://github.com/LonelyCodeCat/lonelycodecat.github.io/blob/main/scripts/build-positioning.py">Reproduce the dataset</a></p>
+</section>
+<section class="session-block" id="week"><div class="wrap"><div class="section-intro"><div><p class="label">CME / Trading hours</p><h2>Where the day breaks.</h2></div>
+  <p>Chicago’s evening open belongs to the following trade date. Switch to Beijing time to see the maintenance break shift by an hour between summer and winter.</p></div>
+  <div class="sessions-grid"><figure class="instrument"><figcaption><h3>Session clock</h3><span>ES / Globex</span></figcaption>
+      <div class="controls"><label>Time zone<select id="zone"><option value="America/Chicago">Chicago</option><option value="Asia/Shanghai">Beijing</option></select></label>
+      <label>Reference week<select id="season"><option value="november">November 2026</option><option value="july">July 2026</option></select></label></div>
+      <div class="dial"><canvas id="clock" aria-hidden="true"></canvas><div class="center"><b>23<span>h</span></b><span>trading</span></div></div>
+      <p class="pause" id="pause" aria-live="polite"></p></figure>
+    <div class="calendar"><p class="label">Local calendar days</p><h3>A week in 168 hours</h3>
+      <div id="heatmap" aria-label="Hourly session availability"></div>
+      <p class="heat-key"><i></i> Scheduled open <i></i> Closed</p>
+      <div class="table-heading"><span id="table-caption"></span><a id="download" download>Session CSV</a></div>
+      <details><summary>Exact opens and closes</summary><table aria-labelledby="table-caption"><thead><tr><th>Trade date</th><th>Opens</th><th>Closes</th></tr></thead><tbody id="sessions"></tbody></table></details>
+    </div></div>
+    <p class="note">Regular sessions run 17:00–16:00 Chicago time. Friday’s close starts the weekend break. Holidays, expiration and unscheduled halts can change these hours. <a href="https://www.cmegroup.com/markets/equities/sp-500-and-nasdaq-100-futures.html">CME schedule</a> · <a href="https://www.cmegroup.com/trading-hours.html">Holiday calendar</a></p>
+</div></section>
+<section class="wrap block" id="sources"><div class="section-intro"><div><p class="label">Sources &amp; interpretation</p><h2>Research notebook.</h2></div></div>
+<div class="notes-grid"><article id="method-hour"><p class="label">New York Fed · Staff Report 917</p><h3>Overnight drift</h3><p>Boyarchenko, Larsen and Whelan report a mean of +1.51 bp for 02:00–03:00 ET, with a standard deviation of 17.21 bp. The variation across days was much larger than the average.</p><p>The chart redraws Table A.1, calculated from volume-weighted trade prices. One basis point is 0.01%. Historical hours differ from today’s schedule.</p><a href="https://www.newyorkfed.org/medialibrary/media/research/staff_reports/sr917.pdf">Read the paper</a></article>
+<article><p class="label">Open source · Microstructure</p><h3>Order flow after costs</h3><p>This CME index-futures project compares measured order-flow effects with the cost of execution. Its repository documents the methods and negative findings. The underlying tick feed is licensed separately.</p><a href="https://github.com/GeoCodeCrafter/futures-microstructure-lab">Explore the research</a></article>
+<article><p class="label">Open source · Contract rolls</p><h3>Comparing ES with NQ</h3><p>This research scaffold explains how a change of front contract can alter a spread. The roll rule and the out-of-sample split both matter when comparing two futures series.</p><a href="https://github.com/CommunityPokeOrg/index-futures-stat-arb">Inspect the methodology</a></article></div></section>
 </main>
+<footer id="practice"><div class="wrap foot"><div><p class="label sky">Independent data practice</p><h2>Work with Jun Li.</h2><p>I collect and clean data, develop algorithms, and build interactive reports. Most of my work comes through personal referrals.</p></div><a href="mailto:857487@gmail.com">857487@gmail.com</a></div></footer>
 </body></html>
