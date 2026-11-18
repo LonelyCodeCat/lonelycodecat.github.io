@@ -3,59 +3,47 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Jun Li’s independent data practice. Explore a reproducible study of eight years of Apple financial filings.">
-  <title>Jun Li — Data &amp; Algorithms</title>
+  <meta name="description" content="Jun Li’s independent data portfolio. Explore the 23-hour E-mini S&P 500 futures session in Chicago and Beijing time.">
+  <title>Jun Li — The 23-hour trading day</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="facts.js" defer></script>
   <script src="portfolio.js" defer></script>
 </head>
-<body>
-  <header class="mast wrap">
-    <a class="brand" href="#top" aria-label="Jun Li home"><span class="mark" aria-hidden="true">∿</span> Jun Li</a>
-    <nav aria-label="Main navigation"><a href="#work">Work</a><a href="#practice">Practice</a><a class="contact" href="mailto:857487@gmail.com">Contact</a></nav>
-  </header>
-  <main id="top">
-    <section class="hero">
-      <div class="hero-inner wrap">
-        <div class="intro">
-          <p class="kicker"><i></i> Independent data practice</p>
-          <h1>Data &amp;<br><em>algorithms.</em></h1>
-          <p class="lead">I’m Jun Li. I collect and clean data, build algorithms, and make the results easier to explore.</p>
-          <a class="action" href="#work">Explore the case study</a>
-        </div>
-        <figure class="field">
-          <canvas id="surface" aria-label="A wireframe of two overlapping Gaussian peaks"></canvas>
-          <figcaption><span>Gaussian surface</span><span>z = f(x, y)</span></figcaption>
-        </figure>
+<body id="top">
+<header class="wrap mast">
+  <a class="brand" href="#top">Jun Li<span>.</span></a>
+  <nav aria-label="Main navigation"><a href="#study">Study</a><a href="#practice">Practice</a><a href="mailto:857487@gmail.com">Contact</a></nav>
+</header>
+<main>
+  <section class="wrap hero" id="study">
+    <div class="intro">
+      <p class="eyebrow"><span class="rule"></span>Independent study · Market hours</p>
+      <h1>The <em>23-hour</em><br>trading day.</h1>
+      <p class="deck">When does the S&amp;P 500 futures market sleep?</p>
+      <p class="copy">I’m Jun Li, an independent data analyst and developer. Here I map the trading week for CME’s E-mini S&amp;P 500 futures (ES), starting with the one hour missing from a regular session.</p>
+      <a class="textlink" href="#week">Explore the trading week</a>
+    </div>
+    <figure aria-labelledby="clock-title" class="instrument">
+      <figcaption><span id="clock-title">Session clock</span><span class="symbol">ES / CME Globex</span></figcaption>
+      <div class="controls">
+        <label>Time zone<select id="zone"><option value="America/Chicago">Chicago</option><option value="Asia/Shanghai">Beijing</option></select></label>
+        <label>Reference week<select id="season"><option value="november">November 2026</option><option value="july">July 2026</option></select></label>
       </div>
-    </section>
-    <section class="project wrap" id="work">
-      <div class="section-label">Selected work</div>
-      <div class="project-intro"><div><p class="meta">Independent study &nbsp;/&nbsp; U.S. equities</p><h2>Apple, in the filings.</h2></div>
-        <p>How closely does operating income track sales? Explore eight fiscal years of Apple’s reported figures, extracted from SEC filings.</p>
-      </div>
-      <article class="panel" aria-label="Interactive Apple financial data">
-        <div class="panel-top"><div class="issuer"><b>AAPL</b><span>Apple Inc.</span></div>
-          <div class="switch" role="group" aria-label="Chart metric"><button type="button" data-metric="revenue" aria-pressed="true">Revenue</button><button type="button" data-metric="operating_income" aria-pressed="false">Operating income</button></div></div>
-        <div class="chart-layout">
-          <div class="readout" aria-live="polite"><p class="meta" id="metric-name">Revenue</p><strong id="value">$478.8B</strong><p id="delta"></p><label class="year-label" for="year">Fiscal year</label><select id="year"></select></div>
-          <div class="plot"><p class="meta">USD billions</p><div id="bars"></div></div>
-        </div>
-        <div class="panel-bottom"><span>Source · SEC EDGAR / Form 10-K</span><a href="apple-annual.csv" download>Download CSV</a></div>
-      </article>
-      <details><summary>Method, sources &amp; findings</summary><div class="notes">
-        <p>Each observation uses the USD amount in Apple’s own 10-K for that fiscal year. The extraction matches the reporting year, keeps 52- or 53-week periods, and excludes quarterly and comparative values. The CSV keeps the filing accession number alongside each observation.</p>
-        <p>In FY2023 both measures fell. In FY2024 sales rose about 2%, while operating income rose about 8%. The percentage change shown in the chart compares the selected year with the preceding observation.</p>
-        <p>This portfolio example takes inspiration from EdgarTools’ approach to working with filings. The extraction and chart were built for this site.</p>
-        <div class="source-links"><a href="https://data.sec.gov/api/xbrl/companyfacts/CIK0000320193.json">SEC source data</a><a id="filing" href="https://www.sec.gov/Archives/edgar/data/320193/000032019326000026/">Selected filing</a><a href="https://github.com/dgunning/edgartools">EdgarTools on GitHub</a></div>
-      </div></details>
-    </section>
-    <section class="practice wrap" id="practice">
-      <div class="section-label">Practice</div><div class="practice-body"><h2>What I work on</h2>
-      <div class="service"><h3>Data collection</h3><p>Extract records from websites, APIs, and files into structured datasets.</p></div>
-      <div class="service"><h3>Analysis &amp; reporting</h3><p>Clean inconsistent records, compare trends, and present findings in charts and reports.</p></div>
-      <div class="service"><h3>Algorithm development</h3><p>Turn repeatable processing and matching tasks into software that can be checked against examples.</p></div></div>
-    </section>
-  </main>
-  <footer><div class="wrap foot"><div><p class="kicker"><i></i> Get in touch</p><h2>Work with me.</h2><p>Most of my work comes through personal referrals.</p></div><a class="email" href="mailto:857487@gmail.com">857487@gmail.com</a></div></footer>
+      <div class="dial"><canvas id="clock" width="620" height="480" aria-hidden="true"></canvas><div class="center"><b>23<span>h</span></b><span>trading</span></div></div>
+      <div class="legend"><span><i></i> Trading</span><span><i></i> Maintenance</span></div>
+      <p class="pause" id="pause" aria-live="polite">Chicago maintenance · 16:00–17:00</p>
+    </figure>
+  </section>
+  <section class="wrap week" id="week">
+    <div class="section-intro"><div><p class="eyebrow"><span class="rule"></span>Session calendar</p><h2>Five trade dates.</h2></div>
+    <p>CME assigns the evening open to the following trade date. The table uses the clock’s selected time zone, so the local calendar day can change.</p></div>
+    <div class="table-heading"><span id="table-caption">Regular week</span><a href="#" download="es-sessions.csv" id="download">Download CSV</a></div>
+    <table aria-labelledby="table-caption"><thead><tr><th scope="col">Trade date</th><th scope="col">Session opens</th><th scope="col">Session closes</th></tr></thead><tbody id="sessions"></tbody></table>
+    <div class="method"><h3>How to read the schedule</h3><div><p>A regular session runs from 17:00 to 16:00 the next day in Chicago. Monday through Thursday the market pauses for one hour before reopening. Friday’s close starts the weekend break, which ends on Sunday at 17:00 Chicago time.</p>
+    <p>These two sample weeks show scheduled hours in U.S. daylight and standard time. Holiday schedules, expiring contracts and unscheduled halts can differ.</p>
+    <div class="sources"><a href="https://www.cmegroup.com/markets/equities/sp-500-and-nasdaq-100-futures.html">CME trading hours</a><a href="https://www.cmegroup.com/markets/equities/sp/e-mini-sandp500.contractSpecs.html">ES specifications</a><a href="https://www.cmegroup.com/trading-hours.html">Holiday calendar</a></div></div></div>
+  </section>
+  <section id="practice"><div class="wrap practice"><div><p class="eyebrow"><span class="rule"></span>Independent practice</p><h2>Data work<br>with Jun Li.</h2></div>
+    <div><p>I collect and clean data from websites, APIs, and files. I develop algorithms to process it and deliver structured datasets, charts, and reports. Most of my work comes through personal referrals.</p>
+    <a href="mailto:857487@gmail.com">857487@gmail.com</a></div></div></section>
+</main>
 </body></html>

@@ -1,6 +1,17 @@
-const canvas = document.querySelector("#surface");
+const hourMs = 3_600_000;
+// Sunday 17:00 in Chicago, using the UTC offset of each reference week.
+const weekOpens = {
+  november: "2026-11-15T23:00:00Z",
+  july: "2026-07-12T22:00:00Z",
+};
+const zone = document.querySelector("#zone");
+const season = document.querySelector("#season");
+const canvas = document.querySelector("#clock");
+const download = document.querySelector("#download");
+let pauseHour = 16;
+let csvUrl;
 
-function drawSurface() {
+function drawClock() {
   const width = canvas.clientWidth;
   const height = canvas.clientHeight;
   const ratio = Math.min(window.devicePixelRatio || 1, 2);
@@ -8,81 +19,76 @@ function drawSurface() {
   canvas.height = Math.round(height * ratio);
   const ctx = canvas.getContext("2d");
   ctx.scale(ratio, ratio);
-  const amplitude = (x, y) =>
-    Math.exp(-((x - 0.2) ** 2 * 6 + (y + 0.18) ** 2 * 8)) +
-    0.55 * Math.exp(-((x + 0.52) ** 2 * 12 + (y - 0.24) ** 2 * 12));
-  function project(x, y) {
-    const z = amplitude(x, y);
-    return [width * (0.5 + 0.244 * (x - y)), height * (0.65 + 0.147 * (x + y) - 0.50 * z), z];
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = height * 0.365;
+  const angle = hour => hour * Math.PI / 12 - Math.PI / 2;
+  function arc(r, begin, end, thickness, color) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, angle(begin), angle(end));
+    ctx.lineWidth = thickness;
+    ctx.strokeStyle = color;
+    ctx.stroke();
   }
-  // Draw back to front so each opaque surface tile hides the mesh behind it.
-  const count = 44;
-  const step = 2 / count;
-  for (let i = 0; i < count; i++) {
-    for (let j = 0; j < count; j++) {
-      const x = -1 + i * step;
-      const y = -1 + j * step;
-      const tile = [project(x, y), project(x + step, y), project(x + step, y + step), project(x, y + step)];
-      const level = Math.min(1, tile[0][2]);
+  arc(radius * .78, 0, 24, 1, "#425867");
+  arc(radius * 1.14, 0, 24, 1, "#425867");
+  for (let hour = 0; hour < 24; hour++) {
+    const maintenance = hour === pauseHour;
+    arc(radius, hour + .055, hour + .945, radius * .19, maintenance ? "#ffc26d" : "#85a9ff");
+    if (maintenance) arc(radius * .84, hour + .05, hour + .95, 2, "#ffc26d");
+    for (let tick = 0; tick < 4; tick++) {
+      const a = angle(hour + tick / 4);
+      const start = tick ? 1.10 : 1.07;
       ctx.beginPath();
-      tile.forEach(([px, py], k) => k ? ctx.lineTo(px, py) : ctx.moveTo(px, py));
-      ctx.closePath();
-      ctx.fillStyle = 'hsl(' + (166 - 86 * level) + ' 36% ' + (11 + 26 * level) + '%)';
-      ctx.fill();
-      ctx.strokeStyle = 'hsla(' + (152 - 76 * level) + ', 74%, ' + (48 + 32 * level) + '%, ' + (0.48 + level * 0.50) + ')';
-      ctx.lineWidth = 0.7;
+      ctx.moveTo(cx + Math.cos(a) * radius * start, cy + Math.sin(a) * radius * start);
+      ctx.lineTo(cx + Math.cos(a) * radius * 1.14, cy + Math.sin(a) * radius * 1.14);
+      ctx.strokeStyle = "#8196a8";
+      ctx.lineWidth = 1;
       ctx.stroke();
     }
   }
+  ctx.fillStyle = "#d6e1ea";
+  ctx.font = "13px monospace";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (const hour of [0, 3, 6, 9, 12, 15, 18, 21]) {
+    const a = angle(hour);
+    ctx.fillText(String(hour).padStart(2, "0"), cx + Math.cos(a) * radius * 1.26, cy + Math.sin(a) * radius * 1.26);
+  }
 }
-new ResizeObserver(drawSurface).observe(canvas);
 
-const names = {revenue: "Revenue", operating_income: "Operating income"};
-let metric = "revenue";
-const years = document.querySelector("#year");
-const bars = document.querySelector("#bars");
-for (const fact of appleFacts) {
-  years.add(new Option(fact.year, fact.year));
-  const button = document.createElement("button");
-  button.className = "bar";
-  button.type = "button";
-  button.append(document.createElement("i"), document.createElement("span"));
-  button.lastChild.textContent = fact.year;
-  button.addEventListener("click", () => { years.value = fact.year; update(); });
-  bars.append(button);
-}
-years.selectedIndex = appleFacts.length - 1;
-years.addEventListener("change", update);
-for (const button of document.querySelectorAll("[data-metric]")) {
-  button.addEventListener("click", () => { metric = button.dataset.metric; update(); });
-}
-function billions(value) { return "$" + (value / 1e9).toFixed(1) + "B"; }
-function update() {
-  const index = years.selectedIndex;
-  const row = appleFacts[index];
-  const maximum = Math.max(...appleFacts.map(fact => fact[metric]));
-  document.querySelector("#value").textContent = billions(row[metric]);
-  document.querySelector("#metric-name").textContent = names[metric];
-  const delta = document.querySelector("#delta");
-  if (index > 0) {
-    const change = 100 * (row[metric] / appleFacts[index - 1][metric] - 1);
-    delta.textContent = (change > 0 ? "+" : "") + change.toFixed(1) + "% year over year";
-  } else {
-    delta.textContent = "First year in this study";
+function render() {
+  const timeZone = zone.value;
+  const city = zone.selectedOptions[0].text;
+  const firstOpen = Date.parse(weekOpens[season.value]);
+  const times = new Intl.DateTimeFormat("en-GB", {timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23"});
+  const dates = new Intl.DateTimeFormat("en-GB", {timeZone, weekday: "short", day: "numeric", month: "short"});
+  const tradeDate = new Intl.DateTimeFormat("en-GB", {timeZone: "America/Chicago", weekday: "short", day: "numeric", month: "short"});
+  const body = document.querySelector("#sessions");
+  body.replaceChildren();
+  const csv = [["trade_date_chicago", "display_zone", "open_local", "close_local", "open_utc", "close_utc"]];
+  const localDate = new Intl.DateTimeFormat("sv-SE", {timeZone, year:"numeric", month:"2-digit", day:"2-digit"});
+  const chicagoDate = new Intl.DateTimeFormat("sv-SE", {timeZone:"America/Chicago", year:"numeric", month:"2-digit", day:"2-digit"});
+  for (let day = 0; day < 5; day++) {
+    const start = new Date(firstOpen + day * 24 * hourMs);
+    const end = new Date(start.getTime() + 23 * hourMs);
+    const row = body.insertRow();
+    for (const value of [tradeDate.format(end), dates.format(start) + " · " + times.format(start), dates.format(end) + " · " + times.format(end)]) {
+      row.insertCell().textContent = value;
+    }
+    csv.push([chicagoDate.format(end), timeZone, localDate.format(start) + " " + times.format(start), localDate.format(end) + " " + times.format(end), start.toISOString(), end.toISOString()]);
   }
-  const filing = document.querySelector("#filing");
-  filing.href = "https://www.sec.gov/Archives/edgar/data/320193/" + row.accession.replaceAll("-", "") + "/" + row.accession + "-index.htm";
-  filing.textContent = "FY" + row.year + " filing";
-  for (const button of document.querySelectorAll("[data-metric]")) {
-    button.setAttribute("aria-pressed", button.dataset.metric === metric);
-  }
-  appleFacts.forEach((fact, i) => {
-    const button = bars.children[i];
-    const label = fact.year + " " + names[metric] + " " + billions(fact[metric]);
-    button.style.setProperty("--height", (100 * fact[metric] / maximum) + "%");
-    button.title = label;
-    button.setAttribute("aria-label", label);
-    button.setAttribute("aria-pressed", i === index);
-  });
+  const close = firstOpen + 23 * hourMs;
+  pauseHour = Number(times.format(close).slice(0, 2));
+  document.querySelector("#pause").textContent = city + " maintenance · " + times.format(close) + "–" + times.format(close + hourMs);
+  document.querySelector("#table-caption").textContent = season.selectedOptions[0].text + " · " + city + " time";
+  if (csvUrl) URL.revokeObjectURL(csvUrl);
+  csvUrl = URL.createObjectURL(new Blob([csv.map(row => row.join(",")).join("\r\n") + "\r\n"], {type:"text/csv;charset=utf-8"}));
+  download.href = csvUrl;
+  download.download = "es-sessions-" + season.value + "-" + city.toLowerCase() + ".csv";
+  drawClock();
 }
-update();
+zone.addEventListener("change", render);
+season.addEventListener("change", render);
+new ResizeObserver(drawClock).observe(canvas);
+render();
