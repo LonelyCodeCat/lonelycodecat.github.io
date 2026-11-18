@@ -27,12 +27,12 @@
     <div class="reading"><strong id="hour-value">+1.51</strong><span>bp</span><span id="hour-slot">02:00–03:00 ET</span></div>
     <canvas id="hour-chart" class="plot" aria-label="Hourly ES return statistics, from 18:00 to 18:00 Eastern. Use the hour control below for exact values." role="img"></canvas>
     <label class="scrubber"><span>Inspect hour</span><input id="hour" type="range" min="0" max="23" value="8"></label>
-    <p class="caption">Jan 1998–Dec 2020 · New York time · <a href="#method-hour">Source &amp; method</a></p>
+    <p class="caption">Jan 1998–Dec 2020 · New York time · <a href="#method-hour">Source &amp; method</a> · <a href="data/es-hourly-profile.csv" download>Hourly CSV</a></p>
   </figure>
 </div></section>
 <section class="wrap block" id="positions"><div class="section-intro"><div><p class="label">CFTC / Weekly positioning</p><h2>Who holds the contracts?</h2></div>
   <p>Choose a report week to compare total open interest with the net position of each trader group. Both charts refer to the same report.</p></div>
-  <div class="week-switch"><label for="report">Report date</label><select id="report"></select><a id="position-csv" download="es-cftc-weekly.csv">Download weekly CSV</a></div>
+  <div class="week-switch"><label for="report">Report date</label><select id="report"></select><a id="position-csv" href="data/es-cftc-weekly.csv" download="es-cftc-weekly.csv">Download weekly CSV</a></div>
   <div class="pair">
     <figure class="paper"><figcaption><p class="label">Outstanding contracts</p><h3>Open interest</h3></figcaption>
       <div class="oi-reading"><strong id="interest"></strong><span id="oi-change"></span></div>
@@ -41,7 +41,7 @@
     <figure class="paper"><figcaption><p class="label">Long minus short</p><h3>Net positions</h3></figcaption>
       <div class="net-key"><span>Net short</span><span>Net long</span></div>
       <div id="groups"></div>
-      <p class="caption">Contracts · One shared scale across report weeks</p></figure>
+      <p class="caption">Contracts · One shared scale across report weeks · <a href="data/es-cftc-trader-positions.csv" download>Long &amp; short CSV</a></p></figure>
   </div>
   <p class="note">Open interest counts each outstanding contract once. A positive net position means a group holds more longs than shorts. The five groups balance to zero. This snapshot uses CFTC market code 13874A and ends on 10 November 2026. <a href="https://publicreporting.cftc.gov/Commitments-of-Traders/TFF-Futures-Only/gpe5-46if">CFTC futures-only reports</a> · <a href="https://github.com/LonelyCodeCat/lonelycodecat.github.io/blob/main/scripts/build-positioning.py">Reproduce the dataset</a></p>
 </section>

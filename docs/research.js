@@ -129,8 +129,6 @@ interestPlot.addEventListener("pointerdown",event=>{
   interestRender();
 });
 report.addEventListener("change",interestRender);
-const csv = [["report_date","open_interest","dealer_net","asset_manager_net","leveraged_money_net","other_reportable_net","nonreportable_net"],...esWeeks].map(row=>row.join(",")).join("\r\n");
-document.querySelector("#position-csv").href=URL.createObjectURL(new Blob([csv+"\r\n"],{type:"text/csv;charset=utf-8"}));
 new ResizeObserver(hourRender).observe(hourPlot);
 new ResizeObserver(interestRender).observe(interestPlot);
 hourRender();
